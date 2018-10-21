@@ -5,23 +5,54 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.net.*;
 
 
 public class WordCount implements Master {
 	private int workers;
-	Map<Integer, Integer> test = new HashMap<Integer, Integer>();
-
 	private String[] inputFiles;
-	
+	private ConcurrentHashMap<String, Integer> fileMap;
+	private ConcurrentHashMap<String, String> outputMap;
+	private AtomicInteger statusFlag = new AtomicInteger(0); //0->no change, 1->worker stopped, 2->mapping complete
 
+	public AtomicInteger getStatusFlag() {
+		return statusFlag;
+	}
+	public String[] getInputFiles() {
+		return inputFiles;
+	}
+	public int getWorkers() {
+		return workers;
+	}
+
+
+	public ConcurrentHashMap<String, Integer> getFileMap() {
+		return fileMap;
+	}
+	
+	public ConcurrentHashMap<String, String> getOutputMap() {
+		return outputMap;
+	}
+	
 	public WordCount(int workerNum, String[] filenames) throws IOException {
     	this.workers = workerNum;
     	this.inputFiles = filenames;
+    	this.fileMap = new ConcurrentHashMap<String, Integer>(inputFiles.length);
+		this.outputMap = new ConcurrentHashMap<String, String>(inputFiles.length);
+    	for(int i = 0; i<this.inputFiles.length; i++)
+    	{
+    		this.fileMap.put(this.inputFiles[i], -1);
+    	}
+    	for(int i = 0; i<this.inputFiles.length; i++)
+    	{
+    		this.outputMap.put(this.inputFiles[i], "");
+    	}
+    	this.statusFlag.set(0);
+    	
     }
 
     public void setOutputStream(PrintStream out) {
@@ -29,9 +60,10 @@ public class WordCount implements Master {
     }
 
     public static void main(String[] args) throws Exception {
-    	String[] filenames= {"abs"};
+    	String[] filenames= {"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\king-james-version-bible", "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\war-and-peace"};
     	ByteArrayOutputStream out = new ByteArrayOutputStream();
-    	WordCount wordCount = new WordCount(2, filenames) ;
+    	
+    	WordCount wordCount = new WordCount(1, filenames) ;
         wordCount.setOutputStream(new PrintStream(out));
         wordCount.run();
     	
@@ -39,22 +71,24 @@ public class WordCount implements Master {
 
     }
     
-    public int getWorkers() {
-		return workers;
-	}
+    
 
     public void run()
     {    					
-		MasterSocketThread masterSocketThread = new MasterSocketThread();
+		MasterSocketThread masterSocketThread = new MasterSocketThread(this);
 		WorkerSocketThread workerSocketThread = new WorkerSocketThread(this);
 		masterSocketThread.start();
 		try {
-			TimeUnit.SECONDS.sleep(1);
+			TimeUnit.SECONDS.sleep(2);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		workerSocketThread.start();			
+		workerSocketThread.start();
+		
+		
+		
+		
 	} 
     	
 

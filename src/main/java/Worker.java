@@ -6,17 +6,15 @@ import java.lang.management.ManagementFactory;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Worker {
 
-	int PID;
-	int isActive = 0;
-	int isAlive = 1;
+	private int PID;
+	private AtomicInteger isMapDone = new AtomicInteger(0); //0->busy, 1->idle after map, 2->all mapping done 
+
 	
-	public void Worker(int PID)
-	{
-		this.PID = PID;
-	}
+
 	public static void main(String[] args) throws Exception
 	{
 		System.out.println("In the worker main");
@@ -25,37 +23,33 @@ public class Worker {
 	}
 	
 	
-	public void run() throws UnknownHostException, IOException {
+	public void run() throws UnknownHostException, IOException 
+	{
 		// TODO Auto-generated method stub
 		 System.out.println("In the worker run");
 		 Socket workerSocket = new Socket("localhost", 5000);
 		 //172.30.184.119
 		 PrintStream PS = new PrintStream(workerSocket.getOutputStream());
-		 int pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
-		 PS.println("Worker with PID: " + pid + " is connected");
-		 InputStreamReader IR = new InputStreamReader(workerSocket.getInputStream());
-		 BufferedReader BR = new BufferedReader(IR);		 
-		 String message = BR.readLine();
-		 System.out.println(message);
+		 this.PID = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+		 PS.println("PID " + this.PID);
+		 
+		 new HeartBeatWorkerThread(workerSocket, isMapDone, this.PID).start();
+			
 		 
 		 while(true)
 		 {
-			 PS.println("Worker with PID: " + pid + " is connected\n");
 			 
-			 try {
-					TimeUnit.SECONDS.sleep(3);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			 
+			 if(isMapDone.get() == 2)
+			 {
+				 System.out.println("all mapping done");
+				 break;
+			 }
+			 
 		 }
-		 
-		 
-		 
-		 
-		 
-		 
-		 
+		 workerSocket.close();
 	}
+		 
 	
+		 
 }

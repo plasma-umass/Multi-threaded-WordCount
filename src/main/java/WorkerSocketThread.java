@@ -1,16 +1,25 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorkerSocketThread extends Thread{
 	
 	private int workers;
 	private WordCount wordCount;
+	private AtomicInteger statusFlag;
+	private ConcurrentHashMap fileMap;
+	private ConcurrentHashMap outputMap;
 	
 	public WorkerSocketThread(WordCount wordCount) {
 		// TODO Auto-generated constructor stub
 		this.workers = wordCount.getWorkers();
 		this.wordCount = wordCount;
+		this.statusFlag = wordCount.getStatusFlag();
+		this.fileMap = wordCount.getFileMap();
+		this.outputMap = wordCount.getOutputMap();
+		
 	}
 	
 	public void run()
@@ -22,15 +31,32 @@ public class WorkerSocketThread extends Thread{
 				String workerDir = cwd + "\\src\\main\\java";
 				compileBuilder.directory(new File(workerDir));
 				Process compile = compileBuilder.start();
-					for (int i = 0; i < this.workers; i++)
-					{
+				for (int i = 0; i < this.workers; i++)
+				{
 					
-						this.wordCount.createWorker();
+					this.wordCount.createWorker();
 		
-					}	
+				}
+				
+					
 			} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		
+		while(true)
+		{
+			if(statusFlag.get() == 1)
+			{
+				statusFlag.set(0);
+				try {
+					this.wordCount.createWorker();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out.println("creating new worker");
+				}
+			}
 		}
 		
 	}
