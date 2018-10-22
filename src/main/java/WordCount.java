@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -83,13 +84,21 @@ public class WordCount implements Master {
     	//"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\war-and-peace.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\king-james-version-bible.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt"
 //    	ByteArrayOutputStream out = new ByteArrayOutputStream();
     	//C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt
-    	WordCount wordCount = new WordCount(1, filenames) ;
+    	WordCount wordCount = new WordCount(2, filenames) ;
     	
-//        wordCount.setOutputStream(out);
+//        wordCount.setOutputStream(out)
         wordCount.run();
+//        Collection<Process> proc = wordCount.getActiveProcess();
+//        if (!proc.isEmpty())
+//        {
+//        	Random rnd = new Random();
+//        	int i = rnd.nextInt(proc.size());
+//        	Process p = (Process)proc.toArray()[i];
+//        	p.destroy();
+//        }
         System.out.println("first run done");
-//        WordCount wordCount2 = new WordCount(4, filenames) ;
-//        wordCount2.run();
+        WordCount wordCount2 = new WordCount(4, filenames) ;
+        wordCount2.run();
 //    	System.out.println("reducing done");
     	
 
@@ -155,8 +164,8 @@ public class WordCount implements Master {
      try {
 		for(String key : sortedWordCount.keySet())
 		 {
-		 	fileOut.println(sortedWordCount.get(key) + " : " + key);
-//		 	out.println(sortedWordCount.get(key) + " : " + key);
+//		 	fileOut.println(sortedWordCount.get(key) + " : " + key);
+		 	out.println(sortedWordCount.get(key) + " : " + key);
 		 }
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
@@ -204,7 +213,10 @@ public class WordCount implements Master {
 			e1.printStackTrace();
 		}
 		try {
-			reduce();
+			if(inputFiles.length != 0)
+			{
+				reduce();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

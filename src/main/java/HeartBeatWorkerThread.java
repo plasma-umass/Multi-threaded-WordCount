@@ -72,7 +72,8 @@ public class HeartBeatWorkerThread extends Thread{
 	public FileWriter createFile(int PID) throws IOException
 	{
 		String cwd = System.getProperty("user.dir");
-		String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\map_output\\"+PID+".txt";
+		String workerDir = cwd+"\\map_output\\"+PID+".txt";
+//		String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\map_output\\"+PID+".txt";
 		File dir = new File(workerDir);
 		dir.getParentFile().mkdirs();
 //		if(dir.exists())

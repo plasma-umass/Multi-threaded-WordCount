@@ -40,26 +40,27 @@ public class Test {
 //	}
 	
 	public static void main(String[] args) throws IOException {
+//		String cwd = System.getProperty("user.dir");
+//		String workerDir = cwd + "\\map_output\\hello.txt";
+//		File dir = new File(workerDir);
+//		dir.getParentFile().mkdirs();
+//		if(dir.exists())
+//		{
+//			boolean delete = dir.delete();
+//			System.out.println(delete);
+//		}
+//		dir.createNewFile();
+//		FileWriter fw = new FileWriter(dir, true);
+//		BufferedWriter bw = new BufferedWriter(fw);
+//	    PrintWriter out = new PrintWriter(bw);
+//		out.write("hey buyog");
+//		String newline = System.getProperty("line.separator");
+//		out.write(newline);
+//		out.write("hey buyogy swag");
+//		out.write(newline);
+//		out.close();
 		String cwd = System.getProperty("user.dir");
-		String workerDir = cwd + "\\map_output\\hello.txt";
-		File dir = new File(workerDir);
-		dir.getParentFile().mkdirs();
-		if(dir.exists())
-		{
-			boolean delete = dir.delete();
-			System.out.println(delete);
-		}
-		dir.createNewFile();
-		FileWriter fw = new FileWriter(dir, true);
-		BufferedWriter bw = new BufferedWriter(fw);
-	    PrintWriter out = new PrintWriter(bw);
-		out.write("hey buyog");
-		String newline = System.getProperty("line.separator");
-		out.write(newline);
-		out.write("hey buyogy swag");
-		out.write(newline);
-		out.close();
-		
+		System.out.println(cwd);
 		
 		
 		

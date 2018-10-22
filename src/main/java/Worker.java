@@ -35,7 +35,7 @@ public class Worker {
 		 this.PID = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
 		 PS.println("PID " + this.PID);
 //		 FileWriter fileWriter = createFile(PID);
-		 System.out.println(this.targetFile);
+//		 System.out.println(this.targetFile);
 		 new HeartBeatWorkerThread(workerSocket, isMapDone, this.PID, this.targetFile).start();
 			
 		 
