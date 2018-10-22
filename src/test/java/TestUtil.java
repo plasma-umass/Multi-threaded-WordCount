@@ -11,7 +11,7 @@ public class TestUtil {
     }
 
     public static String getReferenceOutput(String name) throws IOException {
-        Path p = Paths.get(TestUtil.class.getResource(name + ".out").getPath());
+        Path p = Paths.get(TestUtil.class.getResource(name + ".out").getPath().replaceFirst("^/(.:/)","$1"));
         return new String(Files.readAllBytes(p));
     }
 

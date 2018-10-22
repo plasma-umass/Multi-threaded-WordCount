@@ -50,11 +50,12 @@ public class MasterSocketThread extends Thread{
 						{
 							
 							new MasterWorkerThread(socket, fileMap, outputMap, jobFlag = 0, statusFlag, activeWorkers).start();
+							this.activeWorkers.incrementAndGet();
 						}
 						
 					}
 				}
-				master.close();	
+				master.close();
 				System.out.println("master socket closed");
 		
 		} catch (IOException e) {

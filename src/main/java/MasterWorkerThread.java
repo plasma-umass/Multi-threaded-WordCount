@@ -183,7 +183,7 @@ public class MasterWorkerThread extends Thread{
 							e.printStackTrace();
 						}
 						statusFlag.set(2);
-						int s = outputMap.size();
+//						int s = outputMap.size();
 					}
 				}
 				
