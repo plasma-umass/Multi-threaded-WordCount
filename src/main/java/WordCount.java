@@ -109,17 +109,17 @@ public class WordCount implements Master {
     public void reduce() throws IOException {
 		// TODO Auto-generated method stub
     	System.out.println("Reduce called");
-    	File dir = new File(this.outputFile);
+//    	File dir = new File(this.outputFile);
 //    	File dir = new File("C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\reduce_output\\WordCount"+new Date().getTime()+".txt");
-		dir.getParentFile().mkdirs();
-		if(dir.exists())
-		{
-			dir.delete();
-		}
-		dir.createNewFile();    		
-		FileWriter fw = new FileWriter(dir, true);
-		BufferedWriter bw = new BufferedWriter(fw);
-	    PrintWriter fileOut = new PrintWriter(bw);
+//		dir.getParentFile().mkdirs();
+//		if(dir.exists())
+//		{
+//			dir.delete();
+//		}
+//		dir.createNewFile();    		
+//		FileWriter fw = new FileWriter(dir, true);
+//		BufferedWriter bw = new BufferedWriter(fw);
+//	    PrintWriter fileOut = new PrintWriter(bw);
         for(String value : this.outputMap.values())
         {    		
         	BufferedReader br = new BufferedReader(new FileReader(value));
@@ -171,7 +171,7 @@ public class WordCount implements Master {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
-		fileOut.close();
+//		fileOut.close();
 		//out.flush();
 	}
     
