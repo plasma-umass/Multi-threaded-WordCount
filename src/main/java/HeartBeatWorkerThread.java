@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -10,12 +11,16 @@ public class HeartBeatWorkerThread extends Thread{
 	private Socket workerSocket;
 	private AtomicInteger isMapDone;
 	private int PID;
+	private FileWriter filewriter;
+	private String targetFile;
 
-	public HeartBeatWorkerThread(Socket workerSocket, AtomicInteger isMapDone, int PID) {
+	public HeartBeatWorkerThread(Socket workerSocket, AtomicInteger isMapDone, int PID, FileWriter fileWriter, String targetFile) {
 		// TODO Auto-generated constructor stub
 		this.workerSocket = workerSocket;
 		this.isMapDone = isMapDone;
 		this.PID = PID;
+		this.filewriter = fileWriter;
+		this.targetFile = targetFile;
 	}
 	
 	public void run()
@@ -34,7 +39,7 @@ public class HeartBeatWorkerThread extends Thread{
 		 		if(arr[0].equals("map"))
 				{
 					System.out.println("start");
-					new MapperThread(arr[1], this.PID, this.isMapDone).start();
+					new MapperThread(arr[1], this.PID, this.isMapDone, this.filewriter).start();
 					PS.println("start");
 					
 				}
@@ -44,7 +49,7 @@ public class HeartBeatWorkerThread extends Thread{
 				}
 				if(heartBeat.equals("heartbeat message") && isMapDone.get() == 1)
 				{
-					PS.println("status filename");
+					PS.println("status "+ this.targetFile);
 					isMapDone.set(0);
 				}
 				if(heartBeat.equals("close"))

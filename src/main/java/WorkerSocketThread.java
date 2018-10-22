@@ -28,7 +28,8 @@ public class WorkerSocketThread extends Thread{
 		try {
 				ProcessBuilder compileBuilder = new ProcessBuilder("javac", "Worker.java");
 				String cwd = System.getProperty("user.dir");
-				String workerDir = cwd + "\\src\\main\\java";
+//				String workerDir = "";
+				String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\main\\java";
 				compileBuilder.directory(new File(workerDir));
 				Process compile = compileBuilder.start();
 				for (int i = 0; i < this.workers; i++)

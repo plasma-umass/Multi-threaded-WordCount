@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,8 +8,8 @@ public class MasterSocketThread extends Thread{
 	
 	String[] inputFiles;
 	private int intWorkers;
-	private ConcurrentHashMap fileMap;
-	private ConcurrentHashMap outputMap;
+	private ConcurrentHashMap<String, Integer> fileMap;
+	private ConcurrentHashMap<String, String> outputMap;
 	private AtomicInteger statusFlag; //0->no change, 1->worker stopped, 2->mapping complete
 	private int jobFlag = 0; //0 -> map, 1-> reduce
 	
@@ -42,7 +39,7 @@ public class MasterSocketThread extends Thread{
 				
 				
 				
-				while(true)
+				while(statusFlag.get() != 2)
 				{	
 					
 					Socket socket = master.accept();
@@ -56,6 +53,7 @@ public class MasterSocketThread extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println("master socket closed");
+			
 		}
 	}
 }

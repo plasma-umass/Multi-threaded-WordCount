@@ -60,7 +60,7 @@ public class WordCount implements Master {
     }
 
     public static void main(String[] args) throws Exception {
-    	String[] filenames= {"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\king-james-version-bible", "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\war-and-peace"};
+    	String[] filenames= {"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\bin\\simple.txt"};
     	ByteArrayOutputStream out = new ByteArrayOutputStream();
     	
     	WordCount wordCount = new WordCount(1, filenames) ;
@@ -100,7 +100,7 @@ public class WordCount implements Master {
 
     public void createWorker() throws IOException {
     	String cwd = System.getProperty("user.dir");
-    	String workerDir = cwd + "\\src\\main\\java";
+    	String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\main\\java";
     	ProcessBuilder workerProcessBuilderExec = new ProcessBuilder("java", "Worker");
     	workerProcessBuilderExec.directory(new File(workerDir));
     	Process workerProcessexec = workerProcessBuilderExec.start();

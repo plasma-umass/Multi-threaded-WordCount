@@ -78,7 +78,7 @@ public class MasterWorkerThread extends Thread{
 				if(!Message.equals(null) && Message.equals("start") )
 				{
 					System.out.println("start");
-					new HeartBeatThread(socket, isAlive, isDone).start();
+					new HeartBeatThread(socket, isAlive, isDone, outputMap, filename).start();
 				}
 				
 			} catch (IOException e) {
@@ -134,7 +134,7 @@ public class MasterWorkerThread extends Thread{
 								String Message = BR.readLine();
 								if(Message.equals("start"))
 								{
-									new HeartBeatThread(socket, isAlive, isDone).start();
+									new HeartBeatThread(socket, isAlive, isDone, outputMap, filename).start();
 								}
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -143,7 +143,7 @@ public class MasterWorkerThread extends Thread{
 					}
 				}
 				
-				else if(!fileMap.containsValue(-1))
+				else if(!outputMap.containsValue(""))
 				{
 					boolean allOnes = true;
 					for (String key : this.fileMap.keySet())
@@ -162,6 +162,7 @@ public class MasterWorkerThread extends Thread{
 						try {
 							PrintStream PS = new PrintStream(this.socket.getOutputStream());
 							PS.println("close");
+							System.out.println("close");
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,13 +11,17 @@ public class HeartBeatThread extends Thread {
 	
 	private AtomicInteger isAlive;
 	private AtomicInteger isDone;
-	Socket socket;
+	private Socket socket;
+	private ConcurrentHashMap<String, String> outputMap;
+	private String filename;
 	
-	public HeartBeatThread(Socket socket, AtomicInteger isAlive, AtomicInteger isDone) {
+	public HeartBeatThread(Socket socket, AtomicInteger isAlive, AtomicInteger isDone, ConcurrentHashMap<String, String> outputMap, String filename) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
 		this.isAlive = isAlive;
 		this.isDone = isDone;
+		this.outputMap = outputMap;
+		this.filename = filename;
 	}
 
 	
@@ -28,7 +33,7 @@ public class HeartBeatThread extends Thread {
 		{
 			PrintStream PS = new PrintStream(socket.getOutputStream());
 		
-			while(isAlive.get() == 1)
+			while(true)
 			{
 			
 				
@@ -49,8 +54,8 @@ public class HeartBeatThread extends Thread {
 					if(arr[0].equals("status"))
 					{
 						
-						System.out.println("map filename done in heartbeat");
-						
+						System.out.println("map " + arr[1] + " done in heartbeat");
+						outputMap.put(filename, arr[1]);
 						isDone.set(1);
 						
 						break;
