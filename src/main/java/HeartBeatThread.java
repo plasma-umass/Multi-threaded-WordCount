@@ -12,16 +12,18 @@ public class HeartBeatThread extends Thread {
 	private AtomicInteger isAlive;
 	private AtomicInteger isDone;
 	private Socket socket;
-	private ConcurrentHashMap<String, String> outputMap;
+	private ConcurrentHashMap<Integer, String> outputMap;
 	private String filename;
+	private int PID;
 	
-	public HeartBeatThread(Socket socket, AtomicInteger isAlive, AtomicInteger isDone, ConcurrentHashMap<String, String> outputMap, String filename) {
+	public HeartBeatThread(Socket socket, AtomicInteger isAlive, AtomicInteger isDone, ConcurrentHashMap<Integer, String> outputMap, String filename, int PID) {
 		// TODO Auto-generated constructor stub
 		this.socket = socket;
 		this.isAlive = isAlive;
 		this.isDone = isDone;
 		this.outputMap = outputMap;
 		this.filename = filename;
+		this.PID = PID;
 	}
 
 	
@@ -55,7 +57,7 @@ public class HeartBeatThread extends Thread {
 					{
 						
 						System.out.println("map " + arr[1] + " done in heartbeat");
-						outputMap.put(filename, arr[1]);
+						outputMap.put(this.PID, arr[1]);
 						isDone.set(1);
 						
 						break;

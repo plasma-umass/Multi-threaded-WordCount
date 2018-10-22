@@ -15,10 +15,10 @@ public class MasterWorkerThread extends Thread{
 	private ConcurrentHashMap<String, Integer> fileMap = new ConcurrentHashMap<String, Integer>();
 	private String filename;
 	private int jobFlag;
-	private ConcurrentHashMap outputMap;
+	private ConcurrentHashMap<Integer, String> outputMap;
 	private AtomicInteger statusFlag; //0->no change, 1->worker stopped, 2->mapping complete
 	
-	public MasterWorkerThread(Socket socket, ConcurrentHashMap fileMap, ConcurrentHashMap outputMap, int jobFlag, AtomicInteger statusFlag)
+	public MasterWorkerThread(Socket socket, ConcurrentHashMap<String, Integer> fileMap, ConcurrentHashMap<Integer, String> outputMap, int jobFlag, AtomicInteger statusFlag)
 	{
 		this.socket = socket;
 		this.fileMap = fileMap;
@@ -78,7 +78,7 @@ public class MasterWorkerThread extends Thread{
 				if(!Message.equals(null) && Message.equals("start") )
 				{
 					System.out.println("start");
-					new HeartBeatThread(socket, isAlive, isDone, outputMap, filename).start();
+					new HeartBeatThread(socket, isAlive, isDone, outputMap, filename, PID).start();
 				}
 				
 			} catch (IOException e) {
@@ -134,7 +134,7 @@ public class MasterWorkerThread extends Thread{
 								String Message = BR.readLine();
 								if(Message.equals("start"))
 								{
-									new HeartBeatThread(socket, isAlive, isDone, outputMap, filename).start();
+									new HeartBeatThread(socket, isAlive, isDone, outputMap, filename, PID).start();
 								}
 						} catch (IOException e) {
 							// TODO Auto-generated catch block

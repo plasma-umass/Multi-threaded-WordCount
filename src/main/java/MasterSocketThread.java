@@ -9,7 +9,7 @@ public class MasterSocketThread extends Thread{
 	String[] inputFiles;
 	private int intWorkers;
 	private ConcurrentHashMap<String, Integer> fileMap;
-	private ConcurrentHashMap<String, String> outputMap;
+	private ConcurrentHashMap<Integer, String> outputMap;
 	private AtomicInteger statusFlag; //0->no change, 1->worker stopped, 2->mapping complete
 	private int jobFlag = 0; //0 -> map, 1-> reduce
 	
