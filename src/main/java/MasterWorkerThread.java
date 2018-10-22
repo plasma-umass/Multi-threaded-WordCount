@@ -17,14 +17,16 @@ public class MasterWorkerThread extends Thread{
 	private int jobFlag;
 	private ConcurrentHashMap<Integer, String> outputMap;
 	private AtomicInteger statusFlag; //0->no change, 1->worker stopped, 2->mapping complete
+	private AtomicInteger activeWorkers;
 	
-	public MasterWorkerThread(Socket socket, ConcurrentHashMap<String, Integer> fileMap, ConcurrentHashMap<Integer, String> outputMap, int jobFlag, AtomicInteger statusFlag)
+	public MasterWorkerThread(Socket socket, ConcurrentHashMap<String, Integer> fileMap, ConcurrentHashMap<Integer, String> outputMap, int jobFlag, AtomicInteger statusFlag, AtomicInteger activeWorkers)
 	{
 		this.socket = socket;
 		this.fileMap = fileMap;
 		this.jobFlag = jobFlag;
 		this.outputMap = outputMap;
 		this.statusFlag = statusFlag;
+		this.activeWorkers = activeWorkers;
 	}
 
 	
@@ -74,11 +76,21 @@ public class MasterWorkerThread extends Thread{
 					}
 				}
 				
-				Message = BR.readLine();
-				if(!Message.equals(null) && Message.equals("start") )
+				
+				if(this.fileMap.containsValue(PID))
 				{
-					System.out.println("start");
-					new HeartBeatThread(socket, isAlive, isDone, outputMap, filename, PID).start();
+					Message = BR.readLine();
+					if(!Message.equals(null) && Message.equals("start") )
+					{
+						System.out.println("start");
+						new HeartBeatThread(socket, isAlive, isDone, outputMap, filename, PID).start();
+					}
+				}
+				
+				else
+				{
+					System.out.println("Closing worker cause no file");
+					PS.println("close");
 				}
 				
 			} catch (IOException e) {
@@ -94,15 +106,16 @@ public class MasterWorkerThread extends Thread{
 				
 				this.fileMap.put(this.filename, -1);
 				this.statusFlag.set(1);
+				this.activeWorkers.decrementAndGet();
 				System.out.println("Worker PID: " + this.PID + " connection stopped");
 				break;
 			}
 			
 			if(isDone.get() == 1)
 			{
-				System.out.println("In isDone = 1");
+//				System.out.println("In isDone = 1");
 				this.fileMap.put(this.filename, 1);
-				System.out.println("Map for " + this.filename +" Done in masterworkerthread");
+//				System.out.println("Map for " + this.filename +" Done in masterworkerthread");
 				if(fileMap.containsValue(-1))
 				{
 					System.out.println("adding file to worker with PID "+ PID);
@@ -116,6 +129,7 @@ public class MasterWorkerThread extends Thread{
 							if(this.fileMap.get(key) == PID)
 							{
 								this.filename = key;
+								isDone.set(0);
 								break;
 							}
 								
@@ -158,17 +172,21 @@ public class MasterWorkerThread extends Thread{
 					if(allOnes == true)
 					{
 						System.out.println("all maps done");
-						statusFlag.set(2);
+						
 						try {
 							PrintStream PS = new PrintStream(this.socket.getOutputStream());
 							PS.println("close");
+							
 							System.out.println("close");
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						statusFlag.set(2);
+						int s = outputMap.size();
 					}
 				}
+				
 				
 				
 				
@@ -177,7 +195,7 @@ public class MasterWorkerThread extends Thread{
 		}
 		
 		try {
-			
+			System.out.println("Closing socket");
 			socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

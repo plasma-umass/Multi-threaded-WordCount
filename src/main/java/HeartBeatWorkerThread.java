@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,22 +12,22 @@ public class HeartBeatWorkerThread extends Thread{
 	private Socket workerSocket;
 	private AtomicInteger isMapDone;
 	private int PID;
-	private FileWriter filewriter;
+	private FileWriter fileWriter;
 	private String targetFile;
 
-	public HeartBeatWorkerThread(Socket workerSocket, AtomicInteger isMapDone, int PID, FileWriter fileWriter, String targetFile) {
+	public HeartBeatWorkerThread(Socket workerSocket, AtomicInteger isMapDone, int PID, String targetFile) {
 		// TODO Auto-generated constructor stub
 		this.workerSocket = workerSocket;
 		this.isMapDone = isMapDone;
 		this.PID = PID;
-		this.filewriter = fileWriter;
+//		this.fileWriter = fileWriter;
 		this.targetFile = targetFile;
 	}
 	
 	public void run()
 	{
 		try {
-			System.out.println(this.workerSocket.isClosed());
+//			System.out.println(this.workerSocket.isClosed());
 			InputStreamReader IR = new InputStreamReader(this.workerSocket.getInputStream());
 			BufferedReader BR = new BufferedReader(IR);
 			PrintStream PS = new PrintStream(this.workerSocket.getOutputStream());
@@ -39,7 +40,8 @@ public class HeartBeatWorkerThread extends Thread{
 		 		if(arr[0].equals("map"))
 				{
 					System.out.println("start");
-					new MapperThread(arr[1], this.PID, this.isMapDone, this.filewriter).start();
+					this.fileWriter = createFile(this.PID);
+					new MapperThread(arr[1], this.PID, this.isMapDone, this.fileWriter).start();
 					PS.println("start");
 					
 				}
@@ -64,6 +66,24 @@ public class HeartBeatWorkerThread extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	public FileWriter createFile(int PID) throws IOException
+	{
+		String cwd = System.getProperty("user.dir");
+		String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\map_output\\"+PID+".txt";
+		File dir = new File(workerDir);
+		dir.getParentFile().mkdirs();
+//		if(dir.exists())
+//		{
+//			dir.delete();
+//		}
+		dir.createNewFile();
+		this.targetFile = workerDir;
+		FileWriter fw = new FileWriter(dir, true);
+		return fw;
+		
 	}
 	
 }

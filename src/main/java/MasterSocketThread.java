@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MasterSocketThread extends Thread{
@@ -12,6 +13,7 @@ public class MasterSocketThread extends Thread{
 	private ConcurrentHashMap<Integer, String> outputMap;
 	private AtomicInteger statusFlag; //0->no change, 1->worker stopped, 2->mapping complete
 	private int jobFlag = 0; //0 -> map, 1-> reduce
+	private AtomicInteger activeWorkers = new AtomicInteger(0);
 	
 	
 	public MasterSocketThread(WordCount wordCount)
@@ -33,26 +35,32 @@ public class MasterSocketThread extends Thread{
 				while(i < intWorkers)
 				{
 					Socket socket = master.accept();
-					new MasterWorkerThread(socket, fileMap, outputMap, jobFlag, statusFlag).start();
+					new MasterWorkerThread(socket, fileMap, outputMap, jobFlag, statusFlag, activeWorkers).start();
 					i++;
 				}
 				
+				this.activeWorkers.set(this.intWorkers);
 				
-				
-				while(statusFlag.get() != 2)
+				while(statusFlag.get() !=2)
 				{	
-					
-					Socket socket = master.accept();
-					if(fileMap.containsValue(-1))
+					if(this.activeWorkers.get()<intWorkers)
 					{
+						Socket socket = master.accept();
+						if(fileMap.containsValue(-1))
+						{
+							
+							new MasterWorkerThread(socket, fileMap, outputMap, jobFlag = 0, statusFlag, activeWorkers).start();
+						}
 						
-						new MasterWorkerThread(socket, fileMap, outputMap, jobFlag = 0, statusFlag).start();
 					}
 				}
-			} catch (IOException e) {
+				master.close();	
+				System.out.println("master socket closed");
+		
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("master socket closed");
+			
 			
 		}
 	}

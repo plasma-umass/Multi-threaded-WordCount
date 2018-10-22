@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -6,10 +7,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +32,9 @@ public class WordCount implements Master {
 	private ConcurrentHashMap<Integer, String> outputMap;
 	private AtomicInteger statusFlag = new AtomicInteger(0); //0->no change, 1->worker stopped, 2->mapping complete
 	private Map<String, Integer> reducerMap = new TreeMap<String, Integer>();
+	private String outputFile;
+	private Collection<Process> activeProcesses = new LinkedList<Process>();
+	
 	
 	public AtomicInteger getStatusFlag() {
 		return statusFlag;
@@ -55,30 +65,41 @@ public class WordCount implements Master {
     		this.fileMap.put(this.inputFiles[i], -1);
     	}
     	this.statusFlag.set(0);
+    	this.outputFile = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\reduce_output\\WordCount.txt";
     	
     }
 
     public void setOutputStream(PrintStream out) {
-
+    	out.println(outputFile);
     }
 
+    
+    
     public static void main(String[] args) throws Exception {
-    	String[] filenames= {"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt"};
+    	String[] filenames= {"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\war-and-peace.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\king-james-version-bible.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt"};
+//    	"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\build\\resources\\test\\simple.txt"
+    	//"C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\war-and-peace.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\example-output\\king-james-version-bible.txt","C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt"
     	ByteArrayOutputStream out = new ByteArrayOutputStream();
-    	
+    	//C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\test\\resources\\random.txt
     	WordCount wordCount = new WordCount(1, filenames) ;
+    	if(filenames.length == 0)
+    	{
+    		System.out.println("No input files");
+    		System.exit(0);
+    	
+    	}
         wordCount.setOutputStream(new PrintStream(out));
         wordCount.run();
-    	
+    	System.out.println("reducing done");
     	
 
     }
     
     
 
-    private void reduce() {
+    private void reduce() throws IOException {
 		// TODO Auto-generated method stub
-    	File dir = new File("C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\reduce_output\\WordCount.txt");
+    	File dir = new File("C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\reduce_output\\WordCount"+new Date().getTime()+".txt");
 		dir.getParentFile().mkdirs();
 		if(dir.exists())
 		{
@@ -86,6 +107,8 @@ public class WordCount implements Master {
 		}
 		dir.createNewFile();    		
 		FileWriter fw = new FileWriter(dir, true);
+		BufferedWriter bw = new BufferedWriter(fw);
+	    PrintWriter out = new PrintWriter(bw);
         for(String value : this.outputMap.values())
         {    		
         	BufferedReader br = new BufferedReader(new FileReader(value));
@@ -96,22 +119,42 @@ public class WordCount implements Master {
 				String[] words = line.split(" ");
 				
 				
-					if (words[0]!=null)
+				if (words[0]!=null)
+				{
+					if(reducerMap.containsKey(words[0]))
 					{
-						if(reducerMap.containsKey(words[0]))
-						{
-							this.reducerMap.compute(words[0], (k,v)->v+1);
-						}
-						else
-						{
-							this.reducerMap.put(words[0], 1);
-						}
-    					
+						this.reducerMap.compute(words[0], (k,v)->v+1);
 					}
+					else
+					{
+						this.reducerMap.put(words[0], 1);
+					}
+					
+				}
 				
+					        
 			}
 			
+			br.close();	
         }
+        List<Map.Entry<String, Integer> > list = 
+	               new LinkedList<Map.Entry<String, Integer> >(reducerMap.entrySet()); 
+		Collections.sort(list, new Comparator<Map.Entry<String, Integer> >() { 
+         public int compare(Map.Entry<String, Integer> o1,  
+                            Map.Entry<String, Integer> o2) 
+         { 
+             return (o2.getValue()).compareTo(o1.getValue()); 
+         } 
+     });
+		HashMap<String, Integer> sortedWordCount = new LinkedHashMap<String, Integer>(); 
+     for (Map.Entry<String, Integer> aa : list) { 
+     	sortedWordCount.put(aa.getKey(), aa.getValue()); 
+     }
+     for(String key : sortedWordCount.keySet())
+     {
+     	out.println(sortedWordCount.get(key) + " : " + key);
+     }
+		out.close();
 	}
     
     
@@ -128,12 +171,20 @@ public class WordCount implements Master {
 		}
 		workerSocketThread.start();
 		
-		while(statusFlag.get() != 2)
+		while(true)
 		{
-			
+			if(statusFlag.get() == 2)
+			{
+				break;
+			}
 		}
 		
-		wordCount.reduce();
+		try {
+			reduce();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 	} 
@@ -142,7 +193,7 @@ public class WordCount implements Master {
  
 
     public Collection<Process> getActiveProcess() {
-        return new LinkedList<>();
+        return this.activeProcesses;
     }
 
     public void createWorker() throws IOException {
@@ -151,6 +202,7 @@ public class WordCount implements Master {
     	ProcessBuilder workerProcessBuilderExec = new ProcessBuilder("java", "Worker");
     	workerProcessBuilderExec.directory(new File(workerDir));
     	Process workerProcessexec = workerProcessBuilderExec.start();
+    	this.activeProcesses.add(workerProcessexec);
     }
 }
 

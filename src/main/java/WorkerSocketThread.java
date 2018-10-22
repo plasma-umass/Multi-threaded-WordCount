@@ -26,11 +26,12 @@ public class WorkerSocketThread extends Thread{
 	{
 		System.out.println("In the workersocket thread");
 		try {
-				ProcessBuilder compileBuilder = new ProcessBuilder("javac", "Worker.java");
+//				ProcessBuilder compileBuilder = new ProcessBuilder("java", "Worker.java");
+			ProcessBuilder compileBuilder = new ProcessBuilder("java", "-cp", "build/classes/main", "Worker");
 				String cwd = System.getProperty("user.dir");
 //				String workerDir = "";
-				String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\main\\java";
-				compileBuilder.directory(new File(workerDir));
+//				String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\src\\main\\java";
+//				compileBuilder.directory(new File(workerDir));
 				Process compile = compileBuilder.start();
 				for (int i = 0; i < this.workers; i++)
 				{
@@ -45,7 +46,7 @@ public class WorkerSocketThread extends Thread{
 			e.printStackTrace();
 		}
 		
-		while(true)
+		while(statusFlag.get() != 2)
 		{
 			if(statusFlag.get() == 1)
 			{
@@ -59,6 +60,6 @@ public class WorkerSocketThread extends Thread{
 				}
 			}
 		}
-		
+	System.out.println("closing worker socket thread");	
 	}
 }

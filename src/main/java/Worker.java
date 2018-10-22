@@ -34,9 +34,9 @@ public class Worker {
 		 PrintStream PS = new PrintStream(workerSocket.getOutputStream());
 		 this.PID = Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
 		 PS.println("PID " + this.PID);
-		 FileWriter fileWriter = createFile(PID);
+//		 FileWriter fileWriter = createFile(PID);
 		 System.out.println(this.targetFile);
-		 new HeartBeatWorkerThread(workerSocket, isMapDone, this.PID, fileWriter, this.targetFile).start();
+		 new HeartBeatWorkerThread(workerSocket, isMapDone, this.PID, this.targetFile).start();
 			
 		 
 		 while(true)
@@ -46,7 +46,7 @@ public class Worker {
 			 if(isMapDone.get() == 2)
 			 {
 				 System.out.println("all mapping done");
-				 fileWriter.close();
+//				 fileWriter.close();
 				 break;
 			 }
 			 
@@ -54,22 +54,22 @@ public class Worker {
 		 workerSocket.close();
 	}
 		
-	public FileWriter createFile(int PID) throws IOException
-	{
-		String cwd = System.getProperty("user.dir");
-		String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\map_output\\"+PID+".txt";
-		File dir = new File(workerDir);
-		dir.getParentFile().mkdirs();
-		if(dir.exists())
-		{
-			dir.delete();
-		}
-		dir.createNewFile();
-		this.targetFile = workerDir;
-		FileWriter fw = new FileWriter(dir, true);
-		return fw;
-		
-	}
+//	public FileWriter createFile(int PID) throws IOException
+//	{
+//		String cwd = System.getProperty("user.dir");
+//		String workerDir = "C:\\GitHub\\fall-18-project-1-multi-threaded-word-count-sidewinder182\\map_output\\"+PID+".txt";
+//		File dir = new File(workerDir);
+//		dir.getParentFile().mkdirs();
+////		if(dir.exists())
+////		{
+////			dir.delete();
+////		}
+//		dir.createNewFile();
+//		this.targetFile = workerDir;
+//		FileWriter fw = new FileWriter(dir, true);
+//		return fw;
+//		
+//	}
 	
 		 
 }

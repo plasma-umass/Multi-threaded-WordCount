@@ -16,13 +16,13 @@ import java.util.logging.SimpleFormatter;
 public class MapperThread extends Thread {
 	private String filename;	
 	private AtomicInteger isMapDone;
-	private FileWriter filewriter;
+	private FileWriter fileWriter;
 	
 	public MapperThread(String filename, int PID, AtomicInteger isMapDone, FileWriter filewriter)
 	{
 		this.filename = filename;
 		this.isMapDone = isMapDone;
-		this.filewriter = filewriter;
+		this.fileWriter = filewriter;
 		
 	} 
 	
@@ -31,7 +31,7 @@ public class MapperThread extends Thread {
 		try 
 		{	
 			System.out.println("mapper started");
-			BufferedWriter bw = new BufferedWriter(filewriter);
+			BufferedWriter bw = new BufferedWriter(this.fileWriter);
 		    PrintWriter out = new PrintWriter(bw);
 		
 			BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -54,9 +54,10 @@ public class MapperThread extends Thread {
 			    	
 			}
 			out.close();
+			bw.close();
+			this.fileWriter.close();
 			br.close();
-			
-			
+			System.out.println("closed all in mapper thread");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
